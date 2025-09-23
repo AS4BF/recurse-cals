@@ -1,21 +1,23 @@
 #include <iostream>
 #include <list>
+#include <variant>
 #include <utility>
 #include <string>
+#include <vector>
 #include "tokenizer.h"
 #include "mathtok.h"
 
 using std::cout;
 using std::cin;
 using std::endl;
-using std::list;
 using std::pair;
 using std::string;
-using PairList = std::list<pair<string, int>>;
+using PairVector = std::vector<pair<string, std::variant<int, double, char>>>;
 
-void printPairList(const list<pair<string, int>>& expr){
+
+void printPairList(const PairVector& expr){
 	for(const auto& p : expr){
-		cout << p.first << '\t' << p.second << endl;
+		std::visit([=](const auto& value){cout << p.first << '\t' << value  << endl; }, p.second);
 	};
 };
 
@@ -25,7 +27,7 @@ int main(){
 	cin >> expression;
 
 	Tokenizer* tok = new tokenmath::MathTok();
-       	PairList plt = tok->tokenize(&expression);
+       	PairVector plt = tok->tokenize(&expression);
 	printPairList(plt);
 	
 	delete tok;
