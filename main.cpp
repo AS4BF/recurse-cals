@@ -4,15 +4,15 @@
 #include <utility>
 #include <string>
 #include <vector>
-#include "tokenizer.h"
-#include "mathtok.h"
+#include "./Tokenizer/tokenizer.h"
+#include "./MathTokenizer/mathtok.h"
 
 using std::cout;
 using std::cin;
 using std::endl;
 using std::pair;
 using std::string;
-using PairVector = std::vector<pair<string, std::variant<int, double, char>>>;
+using PairVector = std::vector<pair<char, std::variant<int, double, char>>>;
 
 
 void printPairList(const PairVector& expr){
