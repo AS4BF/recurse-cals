@@ -1,68 +1,81 @@
 #include "calculator.h"
 using PairVector = std::vector<std::pair<char, std::variant<int, double, char>>>;
-using vI = PairVector::iterator; 
+using vI = PairVector::const_iterator; 
 using oT = std::variant<int, double>;
 
-void Calculator::init(vI start, vI end) {
+oT Calculator::decide(vI start, vI end) {
 	this->it = start;
 	this->end = end;
+
+	oT result = this->expr();
+	
+	return result;
+};
+
+inline bool Calculator::is_end(){
+	return !(it < end);
+};
+
+inline bool Calculator::is_next(){
+	return (it->first == 'n' || it->first == '(' || it->first == ')');
 };
 
 oT Calculator::expr(){
 	oT left;
 	oT right;
-	bool its_term = (it->first == 'n' || it->first == '(' || it->first == ')');	
-	if(its_term){
-		left = term();	
-	};	
-	bool no_end = it < end;
-	if(no_end){
-		if(it->first == '+'){
-			it++;
-			right = expr();
-			left += right;
-		} else if(it->first == '-') {
-			it++;
-			right = expr();
-			left += right;	
-		};
-	};	
+
+	if(is_next()){ left = term(); };
+
+	if(is_end()){ goto end; };
+
+	if(it->first == '+'){
+		it++;
+		right = expr();
+		left += right;
+	} else if(it->first == '-') {
+		it++;
+		right = expr();
+		left += right;	
+	};
+
+	end:
 	return left;
 };
 
 oT Calculator::term() {
 	oT left;
 	oT right;
-	bool its_term = (it->first == 'n' || it->first == '(' || it->first == ')');
-	if(its_term){
-		left=fact();
+
+	if(is_next()){ left=fact(); };
+
+	if(is_end()){ goto end; };
+
+	if(it->first = '*'){
+		it++;
+		right = term();
+		left = *= right;
+	} else if(it->first = '/') {
+		it++;
+		right = term();
+		left *= right;
 	};
-	bool no_end = it<end;
-	if(no_end){
-		if(it->first = '*'){
-			it++;
-			right = term();
-			left = *= right;
-		} else if(it->first = '/') {
-			it++;
-			right = term();
-			left *= right;
-		};
-	};
+
+	end:
 	return left;
 };
 
 oT Calculator::fact(){
 	oT left;
+	
 	if(it->first == 'n'){
-		return it->second;	
+		left = it->second;
+		it++;	
 	} else if(it->first == '(') {
 		it++;
 	       	left = expr();	
-	}; 
-	if(it->first == ')') {
-		it++;
-	}; 
+	};
+
+	if(it->first == ')'){ it++; }; 
 
 	return left;
 };

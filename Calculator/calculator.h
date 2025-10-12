@@ -11,7 +11,7 @@ using std::string;
 using std::variant;
 using std::vector;
 using PairVector = std::vector<std::pair<char, std::variant<int, double, char>>>;
-using vI = PairVector::iterator;
+using vI = PairVector::const_iterator;
 using oT = std::variant<int, double>;
 
 class Calculator
@@ -19,12 +19,16 @@ class Calculator
 private:
 	vI it;
        	vI end;
-	oT result;	
+	oT result;
+
+	oT expr(); 
+        oT term();
+        oT fact();
+
+	inline bool is_end();
+	inline bool is_next();
 public:
-	void init(vI start, vI end);	
-	oT expr();	
-	oT term();
-	oT fact();
+	oT decide(vI start, vI end);	 		
 };
 
 #endif
