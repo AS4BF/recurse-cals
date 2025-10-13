@@ -2,7 +2,7 @@
 #include <variant>
 #include <utility>
 #include <string>
-#include <queue>
+#include <stack>
 #include "./Tokenizer/tokenizer.h"
 #include "./MathTokenizer/mathtok.h"
 #include "./Calculator/calculator.h"
@@ -12,7 +12,7 @@ using std::cin;
 using std::endl;
 using std::string;
 using rT = std::variant<int, double, char>;
-using varQue = std::queue<rT>;
+using varStack = std::stack<rT>;
 
 
 int main(){
@@ -21,7 +21,7 @@ int main(){
 	cin >> expression;
 	
 	Tokenizer* tok = new tokenmath::MathTok();
-       	auto plt = std::make_unique<varQue>(tok->tokenize(&expression));
+       	auto plt = std::make_unique<varStack>(tok->tokenize(&expression));
 
 	Calculator* calc = new Calculator();
 	try {

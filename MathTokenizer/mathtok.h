@@ -2,11 +2,11 @@
 #define MATHTOKENIZER_H
 #include "../Tokenizer/tokenizer.h"
 #include <memory> 
-#include <queue>
+#include <stack>
 
 
 namespace tokenmath {
-	using varQue = std::queue<std::variant<int, double, char>>;
+	using varStack = std::stack<std::variant<int, double, char>>;
 	using std::string;
 	enum Operation : char {Add='+', Sub='-', Mul='*', Div='/', Lbkt='(', Rbkt=')'};
 	class MathTok : public Tokenizer
@@ -19,7 +19,7 @@ namespace tokenmath {
 	
 		public: 
 			~MathTok() {};
-			varQue tokenize(const string* expression) override;
+			varStack tokenize(const string* expression) override;
 	};
 
 };

@@ -1,13 +1,13 @@
 #include "calculator.h"
 
-using varQue = std::queue<std::variant<int, double, char>>;
+using varStack = std::stack<std::variant<int, double, char>>;
 using std::get;
 using oT = std::variant<int, double, char>;
 using std::string;
 
 
 
-oT Calculator::decide(std::unique_ptr<varQue>&& exp) {
+oT Calculator::decide(std::unique_ptr<varStack>&& exp) {
 	this->exp = std::move(exp);
 	try { 
 		oT result = this->expr();
@@ -22,73 +22,73 @@ oT Calculator::decide(std::unique_ptr<varQue>&& exp) {
 
 
 inline bool Calculator::is_lbkt() const{
-	return is_char() && get<char>(exp->front()) == '(';
+	return is_char() && get<char>(exp->top()) == '(';
 };
 
 inline bool Calculator::is_rbkt() const {
-	return is_char() && get<char>(exp->front()) == ')';
+	return is_char() && get<char>(exp->top()) == ')';
 };
 
 inline bool Calculator::is_char() const {
-	return exp->front().index() == 2;	
+	return exp->top().index() == 2;	
 };
 
 inline bool Calculator::is_add() const {
-	return is_char() && get<char>(exp->front()) == '+';
+	return is_char() && get<char>(exp->top()) == '+';
 };
 
 inline bool Calculator::is_sub() const {
-	return is_char() && get<char>(exp->front()) == '-';
+	return is_char() && get<char>(exp->top()) == '-';
 };
 
 inline bool Calculator::is_mul() const {
-	return is_char() && get<char>(exp->front()) == '*';
+	return is_char() && get<char>(exp->top()) == '*';
 };
 
 inline bool Calculator::is_div() const {
-	return is_char() && get<char>(exp->front()) == '/';
+	return is_char() && get<char>(exp->top()) == '/';
 };
 
 
 oT Calculator::expr(){
 
 	try{
-		oT left = term();
+		oT right = term();
 
-		if(exp->empty()){ return left; };
-		oT right;
+		if(exp->empty()){ return right; };
+		oT left;
 		if(is_add()){
 			exp->pop();
-			right = expr();
-			left = visit(Add{}, left, right);
+			left = expr();
+			right = visit(Add{}, left, right);
 		} else if(is_sub()) {
 			exp->pop();
-			right = expr();
-			left = visit(Sub{}, left, right);	
+			left = expr();
+			right = visit(Sub{}, left, right);	
 		};
 
-		return left;
+		return right;
 	} catch (const string& error) { throw error; };
 };
 
 oT Calculator::term() {
 
 	try{
-		oT left = fact();
-		if(exp->empty()){ return left; };	
-		oT right;
+		oT right = fact();
+		if(exp->empty()){ return right; };	
+		oT left;
 		if(is_mul()){ 
 			exp->pop();
-			right = term();
-			left = visit(Mul{}, left, right); 
+			left = term();
+			right = visit(Mul{}, left, right); 
 		} else if(is_div()){
 			exp->pop();
-			right = term();
+			left = term();
 			if(visit(is_null{}, right)) { throw string("Division by zero"); };
-			left = visit(Div{}, left, right); 
+			right = visit(Div{}, left, right); 
 		};
 
-		return left;
+		return right;
 	} catch (const string& error) { throw error; };
 };
 
@@ -100,14 +100,14 @@ oT Calculator::fact(){
 		
 	oT left;		
 	if(!is_char()){
-		left = exp->front();
+		left = exp->top();
 		exp->pop();
-	} else if(is_lbkt()) {
+	} else if(is_rbkt()) {
 		exp->pop();
 		try { left = expr(); }	
 		catch (const string& error){ throw error; };
 
-		if(is_rbkt()){
+		if(is_lbkt()){
 		       	exp->pop();
 		} else { throw string("Invalid expression inside (...)");};
 	};

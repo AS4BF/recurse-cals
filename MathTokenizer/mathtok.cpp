@@ -1,7 +1,7 @@
 #include "mathtok.h"
 #include <iostream>
 
-using varQue = std::queue<std::variant<int, double, char>>;
+using varStack = std::stack<std::variant<int, double, char>>;
 using std::string;
 using std::cerr;
 using std::endl;
@@ -29,8 +29,8 @@ std::variant<int, double, char> tokenmath::MathTok::parseNumber(){
 
 
 
-varQue tokenmath::MathTok::tokenize(const string* expression) {
-	varQue tokens;
+varStack tokenmath::MathTok::tokenize(const string* expression) {
+	varStack tokens;
 	
 	this->it = expression->begin(); 
 	this->end = expression->end();

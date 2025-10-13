@@ -1,7 +1,7 @@
 #ifndef CALCULATOR_H
 #define CALCULATOR_H
 #include <utility>
-#include <queue>
+#include <stack>
 #include <iostream>
 #include <variant>
 #include <memory>
@@ -11,7 +11,7 @@
 using std::string;
 using std::variant;
 using std::visit;
-using varQue = std::queue<std::variant<int, double, char>>;
+using varStack = std::stack<std::variant<int, double, char>>;
 using oT = std::variant<int, double, char>;
 
 //struct Operation{
@@ -36,7 +36,7 @@ using oT = std::variant<int, double, char>;
 class Calculator
 {
 private:
-	std::unique_ptr<varQue> exp;
+	std::unique_ptr<varStack> exp;
 
 	oT expr(); 
         oT term();
@@ -56,7 +56,7 @@ private:
 	inline bool is_mul() const;
 	inline bool is_div() const;
 public:
-	oT decide(std::unique_ptr<varQue>&& exp);	 		
+	oT decide(std::unique_ptr<varStack>&& exp);	 		
 };
 
 #endif
