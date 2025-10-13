@@ -19,15 +19,15 @@ int main(){
 	string expression = "";
 
 	cin >> expression;
-
+	
 	Tokenizer* tok = new tokenmath::MathTok();
        	auto plt = std::make_unique<varQue>(tok->tokenize(&expression));
 
 	Calculator* calc = new Calculator();
-
-	rT result = calc->decide(plt);
-
-	std::visit([](const auto& value){cout << value << endl;}, result);
+	try {
+		rT result = calc->decide(std::move(plt));
+		std::visit([](const auto& value){cout << value << endl;}, result);
+	} catch( string& error ) { cout << error; };
 
 	delete calc;	
 	delete tok;

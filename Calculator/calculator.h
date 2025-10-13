@@ -13,21 +13,24 @@ using std::variant;
 using std::visit;
 using varQue = std::queue<std::variant<int, double, char>>;
 using oT = std::variant<int, double, char>;
-using std::common_type;
 
 //struct Operation{
-	template <typename T1, typename T2>
 	struct Add
-	{ typename common_type<T1, T2>::type operator()(T1&& l, T2&& r){return l+r;}; };
-	template <typename T1, typename T2>
+	{ 
+		template <typename T1, typename T2>
+		oT operator()(T1&& l, T2&& r){return l+r;}; };
 	struct Sub
-	{ typename common_type<T1, T2>::type operator()(T1&& l, T2&& r){return l-r;}; };
-	template <typename T1, typename T2>
+	{ 
+		template <typename T1, typename T2>
+		oT operator()(T1&& l, T2&& r){return l-r;}; };
 	struct Mul
-	{ typename common_type<T1, T2>::type operator()(T1&& l, T2&& r){return l*r;}; };
-	template <typename T1, typename T2>
+	{
+		template <typename T1, typename T2>
+	       	oT operator()(T1&& l, T2&& r){return l*r;}; };
 	struct Div
-	{ typename common_type<T1, T2>::type operator()(T1&& l, T2&& r){return l/r;}; };
+	{
+		template <typename T1, typename T2>
+	       	oT operator()(T1&& l, T2&& r){return l/r;}; };
 //};
 
 class Calculator
@@ -38,6 +41,12 @@ private:
 	oT expr(); 
         oT term();
         oT fact();
+	struct is_null {
+		template<typename T>
+		bool operator()(T& value) const {
+			return value == 0;	
+		};
+	};	
 
 	inline bool is_lbkt() const;
 	inline bool is_rbkt() const;
@@ -47,7 +56,7 @@ private:
 	inline bool is_mul() const;
 	inline bool is_div() const;
 public:
-	oT decide(std::unique_ptr<varQue> exp);	 		
+	oT decide(std::unique_ptr<varQue>&& exp);	 		
 };
 
 #endif
