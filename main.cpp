@@ -1,9 +1,8 @@
 #include <iostream>
-#include <list>
 #include <variant>
 #include <utility>
 #include <string>
-#include <vector>
+#include <queue>
 #include "./Tokenizer/tokenizer.h"
 #include "./MathTokenizer/mathtok.h"
 #include "./Calculator/calculator.h"
@@ -11,17 +10,10 @@
 using std::cout;
 using std::cin;
 using std::endl;
-using std::pair;
 using std::string;
-using PairVector = std::vector<pair<char, std::variant<int, double, char>>>;
-using rT = std::variant<int, double>;
+using rT = std::variant<int, double, char>;
+using varQue = std::queue<rT>;
 
-
-void printPairList(const PairVector& expr){
-	for(const auto& p : expr){
-		std::visit([=](const auto& value){cout << p.first << '\t' << value  << endl; }, p.second);
-	};
-};
 
 int main(){
 	string expression = "";
@@ -29,14 +21,14 @@ int main(){
 	cin >> expression;
 
 	Tokenizer* tok = new tokenmath::MathTok();
-       	PairVector plt = tok->tokenize(&expression);
-
-	printPairList(plt);
+       	auto plt = std::make_unique<varQue>(tok->tokenize(&expression));
 
 	Calculator* calc = new Calculator();
 
-	rT result = calc->decide(plt.begin(), plt.end());
+	rT result = calc->decide(plt);
+
 	std::visit([](const auto& value){cout << value << endl;}, result);
+
 	delete calc;	
 	delete tok;
 };

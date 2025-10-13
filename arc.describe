@@ -45,7 +45,54 @@ hight operation:
 потом выполнить операции согласно поставленным приорететам.
 
 E -> T+E | T-E | T
-T -> F*T | F/T | F
+T -> T*F | T/F | F
 F -> N | (E)
 N - number 
 
+expr
+term
+factor
+
+start:
+sit
+eit
+it
+result
+op
+Expr:
+	if NUM or ( or ):	
+		left=term();
+	if + or -:
+		it++;
+		right=expr();
+		left +-= right
+	return left;	
+	
+term:	
+	if NUM or ( or ):
+		left = fact();
+	if * or /:
+		it++;
+		right = term();
+		left */= right;
+	return left;
+
+fact:
+	if NUM:
+		left = NUM;
+		it++;
+	if *(it) == (
+		it++;
+		left = expr();
+	else if ):
+		it++;
+	return left;
+
+
+		
+	
+
+
+
+
+	

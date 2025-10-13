@@ -2,10 +2,11 @@
 #define MATHTOKENIZER_H
 #include "../Tokenizer/tokenizer.h"
 #include <memory> 
+#include <queue>
 
 
 namespace tokenmath {
-	using PairVector = std::vector<std::pair<char, std::variant<int, double, char>>>;
+	using varQue = std::queue<std::variant<int, double, char>>;
 	using std::string;
 	enum Operation : char {Add='+', Sub='-', Mul='*', Div='/', Lbkt='(', Rbkt=')'};
 	class MathTok : public Tokenizer
@@ -14,11 +15,11 @@ namespace tokenmath {
 			std::string::const_iterator it;
 			std::string::const_iterator end;
 
-			std::pair<char, std::variant<int, double, char>> parseNumber();
+			std::variant<int, double, char> parseNumber();
 	
 		public: 
 			~MathTok() {};
-			PairVector tokenize(const string* expression) override;
+			varQue tokenize(const string* expression) override;
 	};
 
 };

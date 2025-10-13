@@ -3,18 +3,17 @@
 #include <string>
 #include <variant>
 #include <utility>
-#include <vector>
+#include <queue>
 
-using std::pair;
+using varQue = std::queue<std::variant<int, double, char>>;
 using std::variant;
 using std::string;
-using std::vector;
 		
 
 class Tokenizer {
 	public:
 		virtual ~Tokenizer() = 0;
-		virtual vector<pair<char, variant<int, double, char>>> tokenize(const string* expression) = 0;
+		virtual varQue tokenize(const string* expression) = 0;
 };
 
 #endif

@@ -1,13 +1,13 @@
 #include "mathtok.h"
 #include <iostream>
 
-using PairVector = std::vector<std::pair<char, std::variant<int, double, char>>>;
+using varQue = std::queue<std::variant<int, double, char>>;
 using std::string;
 using std::cerr;
 using std::endl;
 
 
-std::pair<char, std::variant<int, double, char>> tokenmath::MathTok::parseNumber(){ 
+std::variant<int, double, char> tokenmath::MathTok::parseNumber(){ 
 	bool is_float = false;
 	string number = "";
 	while(it < end && (std::isdigit(*it) || *it == '.' || *it == ',')) {
@@ -16,40 +16,41 @@ std::pair<char, std::variant<int, double, char>> tokenmath::MathTok::parseNumber
 			number.push_back('.');
 		} else if(std::isdigit(*it)) { 
 			number.push_back(*it);
-		}
+		} else { throw string("Invalid number"); }
 		it++;
 	};
 	it--;
 	if(!is_float){
-		return std::make_pair('n', std::stoi(number));
+		return std::stoi(number);
 	} else {
-		return std::make_pair('n', std::stod(number));
+		return std::stod(number);
 	};
 };
 
 
 
-PairVector tokenmath::MathTok::tokenize(const string* expression) {
-	PairVector tokens;
+varQue tokenmath::MathTok::tokenize(const string* expression) {
+	varQue tokens;
 	
 	this->it = expression->begin(); 
 	this->end = expression->end();
 	
 	while(it < end) {
+
 		if(std::isdigit(*it)){
-			tokens.emplace_back(parseNumber());
+			tokens.push(parseNumber());
 		} else if(*it == Operation::Sub){
-			tokens.emplace_back(Operation::Sub, *it);		
+			tokens.push(Operation::Sub);
 		} else if(*it == Operation::Add){
-			tokens.emplace_back(Operation::Add, *it);
+			tokens.push(Operation::Add);
 		} else if(*it == Operation::Mul) {
-			tokens.emplace_back(Operation::Mul, *it);
+			tokens.push(Operation::Mul);
 		} else if(*it == Operation::Div) {
-			tokens.emplace_back(Operation::Div, *it);
+			tokens.push(Operation::Div);
 		} else if(*it == Operation::Lbkt) {
-			tokens.emplace_back(Operation::Lbkt, *it);
+			tokens.push(Operation::Lbkt);
 		} else if(*it == Operation::Rbkt) {
-			tokens.emplace_back(Operation::Rbkt, *it);
+			tokens.push(Operation::Rbkt);
 		};
 		it++;
 	};
@@ -61,22 +62,22 @@ PairVector tokenmath::MathTok::tokenize(const string* expression) {
 		char c = *it;
 		switch(c){
 			case static_cast<char>(Operation::Add):
-				tokens.emplace_back("add", c);
+				tokens.push("add", c);
 				break;
 			case static_cast<char>(Operation::Sub):
-				tokens.emplace_back("sub", c);
+				tokens.push("sub", c);
 				break;
 			case static_cast<char>(Operation::Mul):
-				tokens.emplace_back("mul", c);
+				tokens.push("mul", c);
 				break;
 			case static_cast<char>(Operation::Div):
-				tokens.emplace_back("div", c);
+				tokens.push("div", c);
 				break;
 			case static_cast<char>(Operation::lbkt):
-				tokens.emplace_back("lbkt", c);
+				tokens.push("lbkt", c);
 				break;
 			case static_cast<char>(Operation::rbkt):
-				tokens.emplace_back("rbkt", c);
+				tokens.push("rbkt", c);
 				break;
 			default:
 				bool is_float = false;
@@ -98,9 +99,9 @@ PairVector tokenmath::MathTok::tokenize(const string* expression) {
 				};
 		
 				if(!is_float){
-					tokens.emplace_back("int", std::stoi(num));
+					tokens.push("int", std::stoi(num));
 				} else {
-					tokens.emplace_back("double", std::stod(num));
+					tokens.push("double", std::stod(num));
 				};
 				break;
 		

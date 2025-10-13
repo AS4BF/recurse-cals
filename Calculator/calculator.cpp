@@ -1,82 +1,110 @@
 #include "calculator.h"
-using PairVector = std::vector<std::pair<char, std::variant<int, double, char>>>;
-using vI = PairVector::const_iterator; 
-using oT = std::variant<int, double>;
+using varQue = std::queue<std::variant<int, double, char>>;
+using std::get;
+using oT = std::variant<int, double, char>;
+using std::string;
 
-oT Calculator::decide(vI start, vI end) {
-	this->it = start;
-	this->end = end;
 
-	oT result = this->expr();
-	
+
+oT Calculator::decide(varQue exp) {
+
+	try { oT result = this->expr(); }
+	catch(const string& error) { std::cout << error << std::endl; };	
 	return result;
 };
 
-inline bool Calculator::is_end(){
-	return !(it < end);
+
+
+inline bool Calculator::is_lbkt() const{
+	return is_char() && get<char>(exp->front()) == '(';
 };
 
-inline bool Calculator::is_next(){
-	return (it->first == 'n' || it->first == '(' || it->first == ')');
+inline bool Calculator::is_rbkt() const {
+	return is_char() && get<char>(exp->front()) == ')';
+};
+
+inline bool Calculator::is_char() const {
+	return exp->front().index() == 2;	
+};
+
+inline bool Calculator::is_add() const {
+	return is_char() && get<char>(exp->front()) == '+';
+};
+
+inline bool Calculator::is_sub() const {
+	return is_char() && get<char>(exp->front()) == '-';
+};
+
+inline bool Calculator::is_mul() const {
+	return is_char() && get<char>(exp->front()) == '*';
+};
+
+inline bool Calculator::is_div() const {
+	return is_char() && get<char>(exp->front()) == '/';
 };
 
 oT Calculator::expr(){
-	oT left;
-	oT right;
 
-	if(is_next()){ left = term(); };
+	try{
+		oT left = term();
 
-	if(is_end()){ goto end; };
+		if(exp->empty()){ return left; };
+		oT right;
+		if(is_add()){
+			exp->pop();
+			right = expr();
+			visit(Add{}, left, right);
+		} else if(is_sub()) {
+			exp->pop();
+			visit(Sub{}, left, right);	
+		};
 
-	if(it->first == '+'){
-		it++;
-		right = expr();
-		left += right;
-	} else if(it->first == '-') {
-		it++;
-		right = expr();
-		left += right;	
-	};
-
-	end:
-	return left;
+		return left;
+	} catch (const string& error) { throw error; };
 };
 
 oT Calculator::term() {
-	oT left;
-	oT right;
 
-	if(is_next()){ left=fact(); };
+	try{
+		oT left = fact();
 
-	if(is_end()){ goto end; };
+		if(exp->empty()){ return left; };	
+		oT right;
+		if(is_mul()){ 
+			exp->pop();
+			right = term();
+			visit(Mul{}, left, right); 
+		} else if(is_div()){
+			exp->pop();
 
-	if(it->first = '*'){
-		it++;
-		right = term();
-		left = *= right;
-	} else if(it->first = '/') {
-		it++;
-		right = term();
-		left *= right;
-	};
+			if(visit([](auto& value){return value == 0;}), right) { throw string("Division by zero"); };
+			visit(Div{}, left, right); 
+		};
 
-	end:
-	return left;
+		return left;
+	} catch (const string& error) { throw error; };
 };
 
 oT Calculator::fact(){
-	oT left;
 	
-	if(it->first == 'n'){
-		left = it->second;
-		it++;	
-	} else if(it->first == '(') {
-		it++;
-	       	left = expr();	
+	if(!is_lbkt() || !is_rbkt() || exp->empty()){  //add not a number
+		throw string("Invalid syntax");	
+	};	
+		
+	oT left;		
+	if(!is_char()){
+		left = exp->front();
+		exp->pop();
+	} else if(is_lbkt()) {
+		exp->pop();
+
+		try { left = expr(); }	
+		catch (const string& error){ throw error; };
+
+		if(is_rbkt()){
+		       	exp->pop();
+		} else { throw string("Invalid expression inside (...)");};
 	};
-
-	if(it->first == ')'){ it++; }; 
-
 	return left;
 };
 
