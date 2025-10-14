@@ -14,9 +14,7 @@ oT Calculator::decide(std::unique_ptr<varStack>&& exp) {
 		this->exp.reset();
 		return result;
 	}
-	catch(const string& error) { 
-		std::cout << error;	
-		this->exp.reset(); throw error; };	
+	catch(const string& error) { this->exp.reset(); throw error; };	
 };
 
 
@@ -98,8 +96,10 @@ oT Calculator::fact(){
 		throw string("Invalid syntax");	
 	};	*/
 		
-	oT left;		
-	if(!is_char()){
+	oT left;
+	if(exp->empty()){
+		throw string("Invalid syntax");		
+	} else if(!is_char()) {
 		left = exp->top();
 		exp->pop();
 	} else if(is_rbkt()) {
@@ -110,7 +110,7 @@ oT Calculator::fact(){
 		if(is_lbkt()){
 		       	exp->pop();
 		} else { throw string("Invalid expression inside (...)");};
-	};
+	} else { throw string("Invalid syntax"); };
 	return left;
 };
 

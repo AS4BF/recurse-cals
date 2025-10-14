@@ -7,7 +7,7 @@ using std::cerr;
 using std::endl;
 
 
-std::variant<int, double, char> tokenmath::MathTok::parseNumber(){ 
+std::variant<int, double, char> tokenmath::MathTok::parseNumber(){
 	bool is_float = false;
 	string number = "";
 	while(it < end && (std::isdigit(*it) || *it == '.' || *it == ',')) {
@@ -20,11 +20,13 @@ std::variant<int, double, char> tokenmath::MathTok::parseNumber(){
 		it++;
 	};
 	it--;
-	if(!is_float){
-		return std::stoi(number);
-	} else {
-		return std::stod(number);
-	};
+	try{
+		if(!is_float){
+			return std::stoi(number);
+		} else {
+			return std::stod(number);
+		};
+	} catch (std::out_of_range& error) { throw string("Out of range"); }
 };
 
 
@@ -37,8 +39,9 @@ varStack tokenmath::MathTok::tokenize(const string* expression) {
 	
 	while(it < end) {
 
-		if(std::isdigit(*it)){
-			tokens.push(parseNumber());
+		if(std::isdigit(*it)){ 
+			try{ tokens.push(parseNumber()); }
+			catch (std::out_of_range& error ) { throw error; };
 		} else if(*it == Operation::Sub){
 			tokens.push(Operation::Sub);
 		} else if(*it == Operation::Add){
@@ -51,6 +54,7 @@ varStack tokenmath::MathTok::tokenize(const string* expression) {
 			tokens.push(Operation::Lbkt);
 		} else if(*it == Operation::Rbkt) {
 			tokens.push(Operation::Rbkt);
+		} else { throw string("Invalid syntax");
 		};
 		it++;
 	};

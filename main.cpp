@@ -1,8 +1,8 @@
 #include <iostream>
 #include <variant>
-#include <utility>
 #include <string>
 #include <stack>
+#include <memory>
 #include "./Tokenizer/tokenizer.h"
 #include "./MathTokenizer/mathtok.h"
 #include "./Calculator/calculator.h"
@@ -21,14 +21,15 @@ int main(){
 	cin >> expression;
 	
 	Tokenizer* tok = new tokenmath::MathTok();
-       	auto plt = std::make_unique<varStack>(tok->tokenize(&expression));
+	try { 
+		auto plt = std::make_unique<varStack>(tok->tokenize(&expression)); 
 
-	Calculator* calc = new Calculator();
-	try {
+		Calculator* calc = new Calculator();
 		rT result = calc->decide(std::move(plt));
 		std::visit([](const auto& value){cout << value << endl;}, result);
-	} catch( string& error ) { cout << error; };
+		delete calc;
+	} 
+	catch( string& error ) { cout << error << endl; };
 
-	delete calc;	
 	delete tok;
 };

@@ -30,7 +30,10 @@ using oT = std::variant<int, double, char>;
 	struct Div
 	{
 		template <typename T1, typename T2>
-	       	oT operator()(T1&& l, T2&& r){return l/r;}; };
+	       	oT operator()(T1&& l, T2&& r){return l/r;};
+      		
+		oT operator()(int& l, int& r){return static_cast<double>(l)/r;}; 
+	};
 //};
 
 class Calculator
