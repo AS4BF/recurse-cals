@@ -15,40 +15,52 @@ template<typename... Types>
 Node<typename MParser<Types...>::vT>
 MParser<Types...>::expr(){
 
-	auto right = make_unique<Node<typename MParser<Types...>::vT>>(term());	
+	Node<typename MParser<Types...>::vT> right = term();	
 	unique_ptr<Node<typename MParser<Types...>::vT>> left; 
 	typename MParser<Types...>::vT value;	
-	if(!lexems->empty()){
-		if(is_char()){
-			if(is_add()){ value = typename MParser<Types...>::vT('+'); }
-			if(is_sub()){ value = typename MParser<Types...>::vT('-'); }		
-		} 
 
-		lexems->pop_front();
-		if(!lexems->empty()) { left = make_unique<Node<typename MParser<Types...>::vT>>(expr()); }
+	if(!lexems->empty() && is_char()){
+		
+		bool isadd = is_add();
+		bool issub = is_sub();
+
+		if(isadd){ value = typename MParser<Types...>::vT('+'); }
+		if(issub){ value = typename MParser<Types...>::vT('-'); }		
+		if(isadd || issub){
+			lexems->pop_front();
+			if(!lexems->empty()) { left = make_unique<Node<typename MParser<Types...>::vT>>(expr()); }
+			return Node<typename MParser<Types...>::vT>(value, std::move(left), std::move(make_unique<Node<typename MParser<Types...>::vT>>(std::move(right))));		
+		}
 	}
 
-	return Node<typename MParser<Types...>::vT>(value, std::move(left), std::move(right));		
+	return right;
 };
 
 template<typename... Types>
 Node<typename MParser<Types...>::vT>
 MParser<Types...>::term(){
 	
-	auto right = make_unique<Node<typename MParser<Types...>::vT>>(fact());	
+	Node<typename MParser<Types...>::vT> right = Node<typename MParser<Types...>::vT>(fact());	
 	unique_ptr<Node<typename MParser<Types...>::vT>> left; 
 	typename MParser<Types...>::vT value;
-	if(!lexems->empty()){		
-		if(is_char()){
-			if(is_mul()){ value = typename MParser<Types...>::vT('*'); }
-			if(is_div()){ value = typename MParser<Types...>::vT('/'); }		
-		} 
 
-		lexems->pop_front();
-		if(!lexems->empty()) { left = make_unique<Node<typename MParser<Types...>::vT>>(term()); }
-	}
+	if(!lexems->empty() && is_char()){
+
+		bool ismul = is_mul();
+		bool isdiv = is_div();
+
+		if(ismul){ value = typename MParser<Types...>::vT('*'); }
+		if(isdiv){ value = typename MParser<Types...>::vT('/'); }	
 	
-	return Node<typename MParser<Types...>::vT>(value, std::move(left), std::move(right));		
+		if(ismul || isdiv){	
+			lexems->pop_front();
+			if(!lexems->empty()) { left = make_unique<Node<typename MParser<Types...>::vT>>(term()); } 
+			return Node<typename MParser<Types...>::vT>(value, std::move(left), std::move(make_unique<Node<typename MParser<Types...>::vT>>(std::move(right))));
+		}
+
+	}
+	return right;
+	
 };
 
 
