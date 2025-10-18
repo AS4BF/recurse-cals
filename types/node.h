@@ -10,11 +10,24 @@ struct Node{
 	nP left;
 	nP right;
 	
-	Node operator=(Node& other){
-		this->data = other.data;
-		this->left = std::move(other.left);
-		this->right = std::move(other.right);	
+	Node& operator=(Node& other){
+		if(this!=other){
+			this->data = other.data;
+			this->left = std::move(other.left);
+			this->right = std::move(other.right);
+		}
+		return *this;	
 	}
+
+	Node& operator=(Node&& other){
+		if(this!=&other){
+			this->data = other.data;
+			this->left = std::move(other.left);
+			this->right = std::move(other.right);	
+		}
+		return *this;
+	}
+
 	Node(Node&& other){
 		this->data = other.data;
                 this->left = std::move(other.left);
