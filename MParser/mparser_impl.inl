@@ -40,7 +40,7 @@ template<typename... Types>
 Node<typename MParser<Types...>::vT>
 MParser<Types...>::term(){
 	
-	Node<typename MParser<Types...>::vT> right = Node<typename MParser<Types...>::vT>(fact());	
+	Node<typename MParser<Types...>::vT> right = fact();	
 	unique_ptr<Node<typename MParser<Types...>::vT>> left; 
 	typename MParser<Types...>::vT value;
 
@@ -69,23 +69,29 @@ template<typename... Types>
 Node<typename MParser<Types...>::vT>
 MParser<Types...>::fact(){
 		
-	unique_ptr<Node<typename MParser<Types...>::vT>> right; 
-	unique_ptr<Node<typename MParser<Types...>::vT>> left; 
+	auto right = Node<typename MParser<Types...>::vT>(std::variant<Types...>(0)); 
 
 	typename MParser<Types...>::vT value;
 
-	if(is_char()){
-		if(is_lbkt()){ 
-			value = typename MParser<Types...>::vT('(');
-			lexems->pop_front();
-			right = make_unique<Node<typename MParser<Types...>::vT>>(expr());
-			if(is_rbkt()){ value = typename MParser<Types...>::vT(')'); }
-		};
-	} else { value = typename MParser<Types...>::vT(lexems->front()); } 
-	lexems->pop_front();
+	bool ischar = is_char();
 
-	
-	return Node<typename MParser<Types...>::vT>(value, std::move(left), std::move(right));		
+
+	if(ischar){
+		if(is_rbkt()){ 
+			lexems->pop_front();
+			right = expr();
+			
+			if(is_lbkt()){
+				lexems->pop_front();
+			} //else { throw }
+		}
+	} else { 
+		value = typename MParser<Types...>::vT(lexems->front());
+		lexems->pop_front();
+		right = Node<typename MParser<Types...>::vT>(value);
+	} 
+
+	return right;	
 };
 
 using std::get;
@@ -130,6 +136,7 @@ template<typename... Types>
 Node<typename MParser<Types...>::vT>
 MParser<Types...>::parse(unique_ptr<deque<typename MParser<Types...>::vT>> lexems){
 	this->lexems = std::move(lexems);
+
 	auto res = expr();
 	return res;
 };
