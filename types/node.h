@@ -3,18 +3,15 @@
 #include <memory>
 using std::unique_ptr;
 
-template<typename T>
+template<typename T, typename S>
 struct Node{
-	T data;
-	using nP = unique_ptr<Node<T>>;
-	nP left;
-	nP right;
-	
+		T data;
+		S refs;
+
 	Node& operator=(Node& other){
 		if(this!=other){
 			this->data = other.data;
-			this->left = std::move(other.left);
-			this->right = std::move(other.right);
+			this->refs = other.refs;
 		}
 		return *this;	
 	}
@@ -22,20 +19,15 @@ struct Node{
 	Node& operator=(Node&& other){
 		if(this!=&other){
 			this->data = other.data;
-			this->left = std::move(other.left);
-			this->right = std::move(other.right);	
+			this->refs = other.refs;
 		}
 		return *this;
 	}
 
 	Node(Node&& other){
 		this->data = other.data;
-                this->left = std::move(other.left);
-                this->right = std::move(other.right);	
+		this->refs = other.refs;
 	}	
-
-	Node(T value, nP left = nullptr, nP right = nullptr)
-	       	: data(value), left(move(left)), right(move(right)){};
 };
 
 #endif
