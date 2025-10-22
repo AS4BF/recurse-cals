@@ -4,6 +4,7 @@
 #include <deque>
 #include <memory>
 #include "../types/node.h"
+#include "../types/bitree.h"
 
 using std::deque;
 
@@ -12,7 +13,7 @@ class Parser{
 	public:
 		using vT = std::variant<Types...>;
 		virtual ~Parser() = 0;
-		virtual Node<vT> parse(std::unique_ptr<deque<vT>> lexems) = 0;
+		virtual Node<vT, BiNode<vT>> parse(std::unique_ptr<deque<vT>> lexems) = 0;
 };
 
 template<typename... Types>
