@@ -14,12 +14,17 @@ using std::variant;
 
 template<typename... Types>
 class MParser : public Parser<Types...>{
-	private:
+	public:
 		using typename Parser<Types...>::vT;
+		~MParser() {};
+		using node = Node<vT, BiNode<vT>>;
+		node	
+		parse(unique_ptr<deque<vT>> lexems) override; 
+	private:
 		unique_ptr<deque<vT>> lexems;	
-		Node<vT> expr();
-		Node<vT> term();
-		Node<vT> fact(); 
+		node expr();
+		node term();
+		node fact(); 
 
 		inline bool is_lbkt() const;
 		inline bool is_rbkt() const;
@@ -28,10 +33,6 @@ class MParser : public Parser<Types...>{
 		inline bool is_sub() const;
 		inline bool is_mul() const;
 		inline bool is_div() const;
-public:
-		~MParser() {};
-		Node<vT> 
-		parse(unique_ptr<deque<vT>> lexems) override; 
 };
 
 #include "mparser_impl.inl"

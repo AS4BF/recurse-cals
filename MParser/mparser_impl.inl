@@ -10,13 +10,41 @@ using std::variant;
 using std::unique_ptr;
 using std::make_unique;
 using std::variant;
+using std::string;
+
+/*Op.data +,-
+ * Op.next().data *,/
+ * Op.next().data ( or # ) or NUM # = nullptr
+ */
+/* template<typename... Types>
+Node<vT> func(Op){
+	//if(lexems.empty){ throw }
+	for(Op.data){  
+		if(Op.next() != nullptr){
+			right = func(Op.next());
+			if(lexems.front() == Op){
+				left = func(Op); 
+				lexems.pop_front();
+				return Node<vT>(Op.data, left, right);	
+			
+			return right;
+		} else {
+			value = lexems.front();
+			lexems.pop_front();
+			return Node<vT>(value);
+		}
+	}
+} */
+
+
+
 
 template<typename... Types>
-Node<typename MParser<Types...>::vT>
+typename MParser<Types...>::node
 MParser<Types...>::expr(){
 
-	Node<typename MParser<Types...>::vT> right = term();	
-	unique_ptr<Node<typename MParser<Types...>::vT>> left; 
+	typename MParser<Types...>::node right = term();	
+	unique_ptr<typename MParser<Types...>::node> left; 
 	typename MParser<Types...>::vT value;	
 
 	if(!lexems->empty() && is_char()){
@@ -24,24 +52,28 @@ MParser<Types...>::expr(){
 		bool isadd = is_add();
 		bool issub = is_sub();
 
-		if(isadd){ value = typename MParser<Types...>::vT('+'); }
-		if(issub){ value = typename MParser<Types...>::vT('-'); }		
-		if(isadd || issub){
+		if(isadd){ value = typename MParser<Types...>::vT('+'); 
+		} else if(issub){ value = typename MParser<Types...>::vT('-'); }
+		if(isadd || issub){	
 			lexems->pop_front();
-			if(!lexems->empty()) { left = make_unique<Node<typename MParser<Types...>::vT>>(expr()); }
-			return Node<typename MParser<Types...>::vT>(value, std::move(left), std::move(make_unique<Node<typename MParser<Types...>::vT>>(std::move(right))));		
+			if(!lexems->empty()) {
+			       	left = make_unique<typename MParser<Types...>::node>(expr());
+		       	} else { throw string("Invalid syntax"); }
+
+			return typename MParser<Types...>::node(value, std::move(left), std::move(make_unique<typename MParser<Types...>::node>(std::move(right))));		
 		}
+
 	}
 
 	return right;
 };
 
 template<typename... Types>
-Node<typename MParser<Types...>::vT>
+typename MParser<Types...>::node
 MParser<Types...>::term(){
 	
-	Node<typename MParser<Types...>::vT> right = fact();	
-	unique_ptr<Node<typename MParser<Types...>::vT>> left; 
+	typename MParser<Types...>::node right = fact();	
+	unique_ptr<typename MParser<Types...>::node> left; 
 	typename MParser<Types...>::vT value;
 
 	if(!lexems->empty() && is_char()){
@@ -49,16 +81,19 @@ MParser<Types...>::term(){
 		bool ismul = is_mul();
 		bool isdiv = is_div();
 
-		if(ismul){ value = typename MParser<Types...>::vT('*'); }
-		if(isdiv){ value = typename MParser<Types...>::vT('/'); }	
-	
+		if(ismul){ value = typename MParser<Types...>::vT('*');
+	       	} else if(isdiv){ value = typename MParser<Types...>::vT('/'); }
+		
 		if(ismul || isdiv){	
 			lexems->pop_front();
-			if(!lexems->empty()) { left = make_unique<Node<typename MParser<Types...>::vT>>(term()); } 
-			return Node<typename MParser<Types...>::vT>(value, std::move(left), std::move(make_unique<Node<typename MParser<Types...>::vT>>(std::move(right))));
-		}
+			if(!lexems->empty()) {
+			       	left = make_unique<typename MParser<Types...>::node>(term());
+		       	} else { throw string("Invalid syntax"); }
 
-	}
+			return typename MParser<Types...>::node(value, std::move(left), std::move(make_unique<typename MParser<Types...>::node>(std::move(right))));
+		}
+	
+	} 
 	return right;
 	
 };
@@ -66,10 +101,10 @@ MParser<Types...>::term(){
 
 
 template<typename... Types>
-Node<typename MParser<Types...>::vT>
+typename MParser<Types...>::node
 MParser<Types...>::fact(){
 		
-	auto right = Node<typename MParser<Types...>::vT>(std::variant<Types...>(0)); 
+	auto right = typename MParser<Types...>::node(std::variant<Types...>(0)); 
 
 	typename MParser<Types...>::vT value;
 
@@ -88,7 +123,7 @@ MParser<Types...>::fact(){
 	} else { 
 		value = typename MParser<Types...>::vT(lexems->front());
 		lexems->pop_front();
-		right = Node<typename MParser<Types...>::vT>(value);
+		right = typename MParser<Types...>::node(value);
 	} 
 
 	return right;	
@@ -133,7 +168,7 @@ inline bool MParser<Types...>::is_div() const {
 };
 
 template<typename... Types>
-Node<typename MParser<Types...>::vT>
+typename MParser<Types...>::node
 MParser<Types...>::parse(unique_ptr<deque<typename MParser<Types...>::vT>> lexems){
 	this->lexems = std::move(lexems);
 
